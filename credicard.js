@@ -30,37 +30,76 @@ logout #nombre-logout
 const puppeteer = require('puppeteer')
 
 const execute = async () => {
+  const browser = await puppeteer.launch({devtools:false, headless: false, slowMo: 50})
+
+  const passUrl = 'https://www.credicardenlinea.com.ve/password-personas'
+
   try {
-    // const browser = await puppeteer.launch({headless: false, slowMo: 50})
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
+    browser.on('targetchanged', t => console.log(`target changed: ${t.url()}`) )
 
-    await page.goto('file:///home/ramses/Desktop/Mis%20Tarjetas%20-%20CredicardenLinea.com.ve.html') 
+    browser.on('targetcreated', async t => {
+      console.log(`target created ${t.url()}`);
 
-    // await page.waitFor('body')
 
-    let values = await page.evaluate(() => {
-      const startAnchorLabel = 'Pago de Contado:'
-      const endAnchorLabel = 'Pague antes del:'
-      const cards = Array.from(document.querySelectorAll('div.ccr-cards-info'))
-      return cards.map(card => {
-        const info = card.querySelector('p').innerText
-        console.log(info)        
-        s = info.indexOf(startAnchorLabel)
-        e = info.indexOf(endAnchorLabel)
+      if(t.url() == passUrl){
+        console.log('password page');
+        p = await t.page()
 
-        return {
-          number: info.slice(15,19),
-          facturado: info.slice(s+startAnchorLabel.length,e).trim()
-        }
-      })
+        const passwordSelector = '#password-persona'
+        await p.waitFor(passwordSelector)
+        await p.type(passwordSelector, password)
+        await p.click('#page-open-submit')
+
+        await p.waitForNavigation()
+        await p.goto('https://www.credicardenlinea.com.ve/group/guest/mis-tarjetas')
+
+        let values = await p.evaluate(() => {
+          const startAnchorLabel = 'Pago de Contado:'
+          const endAnchorLabel = 'Pague antes del:'
+          const cards = Array.from(document.querySelectorAll('div.ccr-cards-info'))
+          return cards.map(card => {
+            const info = card.querySelector('p').innerText
+            console.log(info)
+            s = info.indexOf(startAnchorLabel)
+            e = info.indexOf(endAnchorLabel)
+
+            return {
+              number: info.slice(15,19),
+              facturado: info.slice(s+startAnchorLabel.length,e).trim()
+            }
+          })
+        })
+
+        console.log('*************************');
+        console.log(values);
+        console.log('*************************');
+
+        // navegar a https://www.credicardenlinea.com.ve/group/guest/detalles-tarjeta?cardId=2
+        // ver pagina en escritorio
+        document.querySelector('#nombre-logout').click()
+      }
+
     })
 
-    await browser.close()
-    return values
+    // const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    page.on('load', () => console.log("Loaded: " + page.url()))
+
+    const username = process.env['CC_USERNAME']
+    const password = process.env['CC_PASSWORD']
+
+    await page.goto('https://www.credicardenlinea.com.ve')
+
+    const usernameSelector = '#cedula-persona'
+    await page.waitFor(usernameSelector)
+    await page.type(usernameSelector, username)
+    await page.click('.ccr-page-open-submit')
+
+    return {}
   }
   catch(e){
     console.error(e)
+    browser.close()
     return e
   }
 }

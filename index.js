@@ -4,8 +4,8 @@ const credicard = require('./credicard')
 
 ;(async () => {
   try {
-    //const bdvResult = await bdv.execute()
-    //console.log(bdvResult)
+    // const bdvResult = await bdv.execute()
+    // console.log(bdvResult)
     const ccResult = await credicard.execute()
     console.log('ccResult', ccResult)
   }
@@ -14,4 +14,3 @@ const credicard = require('./credicard')
     process.exit(1)
   }
 })()
-

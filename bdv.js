@@ -3,9 +3,9 @@ const puppeteer = require('puppeteer')
 const execute = async () => {
   try {
     const valueSelector = value => `#contenido > table > tbody > tr:nth-child(5) > td > table > tbody > tr:nth-child(7) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(8) > td:nth-child(${value})`
-    const username = process.env['BDV_USERNAME'] 
-    const password = process.env['BDV_PASSWORD'] 
-    //const browser = await puppeteer.launch({headless: false, slowMo: 50})
+    const username = process.env['BDV_USERNAME']
+    const password = process.env['BDV_PASSWORD']
+    // const browser = await puppeteer.launch({headless: false, slowMo: 50})
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
 
@@ -37,7 +37,7 @@ const execute = async () => {
     await page.waitFor(ccTableSelector)
 
     const values = await page.evaluate(() => {
-      //cuenta 
+      //cuenta
       const numeroCuentaCC = document.querySelector('#contenido > table > tbody > tr:nth-child(5) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(6) > td > table > tbody > tr:nth-child(2) > td:nth-child(1) > div > a').innerText
       const saldoTotalCC = document.querySelector('#contenido > table > tbody > tr:nth-child(5) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(6) > td > table > tbody > tr:nth-child(2) > td:nth-child(4)').innerText
       const disponibleCC = document.querySelector('#contenido > table > tbody > tr:nth-child(5) > td > table > tbody > tr:nth-child(1) > td > table > tbody > tr:nth-child(6) > td > table > tbody > tr:nth-child(2) > td:nth-child(5)').innerText
@@ -52,29 +52,27 @@ const execute = async () => {
         account: {
           number: numeroCuentaCC,
           total: saldoTotalCC,
-          available: disponibleCC,  
+          available: disponibleCC,
         },
         credit_card: {
           number: numeroTarjeta.slice(-4),
           facturado: facturado,
           current: actual,
-          available: disponible,  
+          available: disponible,
         }
       }
     })
     // await page.screenshot({path: 'screenshot.png'})
     //salida del sistema
-    await page.click('#pers > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr > td:nth-child(8) > strong > a')   
+    await page.click('#pers > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr > td:nth-child(8) > strong > a')
     await browser.close()
     return values
 
   } catch (e) {
     console.error(e);
-  } 
+  }
 }
 
 let Script = {}
 Script.execute = execute
 module.exports = Script
-
-
