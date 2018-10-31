@@ -1,13 +1,10 @@
 require('dotenv').config()
-const bdv = require('./bdv')
-const credicard = require('./credicard')
+const apostilla = require('./apostilla')
 
 ;(async () => {
   try {
-    // const bdvResult = await bdv.execute()
-    // console.log(bdvResult)
-    const ccResult = await credicard.execute()
-    console.log('ccResult', ccResult)
+    process.stderr.write('\x07')
+    const page = await apostilla.execute()
   }
   catch(e){
     console.error(e)
